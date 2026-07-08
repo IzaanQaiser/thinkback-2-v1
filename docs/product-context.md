@@ -1313,6 +1313,8 @@ Personal success metric:
 
 # 23. Build Phases
 
+Detailed atomic implementation steps, user actions, and validation gates live in `docs/build-phase-plan.md`.
+
 ## Phase 0: Setup
 
 * create Next.js app
