@@ -287,6 +287,67 @@ V1 can implement basic retrieval:
 
 ---
 
+## Flow 9: Brag Sheet / Achievement Capture
+
+User sends:
+
+> “Add to brag sheet: built LeadGuard landing page and got 12 waitlist signups in one day”
+
+Thinkback should:
+
+1. save the raw memory
+2. recognize this as a brag sheet / achievement entry
+3. classify it as an achievement
+4. extract what was done, where/context, measurable impact, skills, and date if available
+5. tag it with `brag-sheet` and relevant career/project tags
+6. make it searchable and retrievable later
+
+Processed output:
+
+```json
+{
+  "type": "achievement",
+  "summary": "Built the LeadGuard landing page and got 12 waitlist signups in one day.",
+  "tags": ["brag-sheet", "leadguard", "landing-page", "growth"],
+  "priority": "medium",
+  "action_items": [],
+  "reminder_at": null,
+  "ai_metadata": {
+    "brag_sheet": {
+      "what": "Built the LeadGuard landing page",
+      "context": "LeadGuard project",
+      "impact": "Got 12 waitlist signups in one day",
+      "skills": ["product", "frontend", "growth"],
+      "metric": "12 waitlist signups"
+    }
+  }
+}
+```
+
+The user should be able to keep appending achievements over time with messages like:
+
+* “add to brag sheet: shipped X”
+* “brag sheet: won Y”
+* “career win: did X which caused Y”
+* “save this as an achievement: ...”
+
+The brag sheet is not a separate writing task for the user. It is a filtered, organized view over captured achievement memories.
+
+Later, Thinkback can turn the brag sheet into:
+
+* resume bullets
+* internship application examples
+* LinkedIn updates
+* scholarship/application answers
+* “tell me about yourself” talking points
+* weekly/monthly career progress summaries
+
+Important implementation note:
+
+Do not store the brag sheet only as a vector. Store the original achievement as a normal structured memory, then generate embeddings so it can be searched semantically later.
+
+---
+
 # 5. V1 Platforms
 
 ## Primary Capture Interface
@@ -410,6 +471,20 @@ Shows:
 Chat with saved memories.
 
 User asks questions and gets answers grounded in their stored memories.
+
+### `/dashboard/brag-sheet`
+
+Career achievement tracker.
+
+Shows:
+
+* achievement memories
+* impact/metrics
+* project/company/context
+* skills demonstrated
+* created date
+* source memory link
+* copyable resume-style bullets
 
 ---
 
@@ -554,6 +629,7 @@ file
 job
 person
 research
+achievement
 ```
 
 The AI can classify the type.
@@ -649,7 +725,7 @@ Return JSON only.
 
 Schema:
 {
-  "type": "note | idea | task | reminder | event | link | image | video | audio | file | job | person | research",
+  "type": "note | idea | task | reminder | event | link | image | video | audio | file | job | person | research | achievement",
   "title": "short title",
   "summary": "short practical summary",
   "extracted_text": "important extracted text, or null",
@@ -674,6 +750,7 @@ Rules:
 - Be practical, not fancy.
 - Use lowercase kebab-case tags.
 - If the user mentions a deadline, reminder, event, meeting, task, or follow-up, extract it.
+- If the user says "add to brag sheet", "brag sheet", "career win", "achievement", or describes a career/project accomplishment, classify it as achievement and add the `brag-sheet` tag.
 - If a date is vague, infer cautiously using the user's timezone.
 - If no reminder is clearly requested, set reminder_at to null.
 - Do not invent details.
@@ -1071,6 +1148,39 @@ Examples:
 
 ---
 
+## Brag Sheet Page
+
+A focused view of career wins and proof of work.
+
+User can filter by:
+
+* project
+* skill
+* date
+* impact/metric
+* source type
+
+Each entry should show:
+
+* what the user did
+* where/context
+* measurable impact if available
+* skills demonstrated
+* original captured memory
+* AI-generated resume bullet
+
+Example entry:
+
+```txt
+Built the LeadGuard landing page
+
+Impact: 12 waitlist signups in one day
+Skills: frontend, product, growth
+Resume bullet: Built and launched a landing page for LeadGuard, generating 12 waitlist signups in the first day.
+```
+
+---
+
 # 18. First-Time User Experience
 
 Onboarding should teach the habit quickly.
@@ -1192,7 +1302,8 @@ V1 is successful if:
 7. dashboard shows all memories
 8. search works
 9. Ask Thinkback can answer from saved memories
-10. user genuinely starts dumping brain into it daily
+10. user can append career wins to a brag sheet from Telegram
+11. user genuinely starts dumping brain into it daily
 
 Personal success metric:
 
@@ -1311,6 +1422,21 @@ Done when:
 Done when:
 
 > User can ask “what was my plan for X?” and get a useful grounded answer.
+
+---
+
+## Phase 7.5: Brag Sheet
+
+* detect “add to brag sheet” and similar phrases
+* classify entries as `achievement`
+* store structured achievement metadata in `ai_metadata.brag_sheet`
+* add `brag-sheet` tag automatically
+* build `/dashboard/brag-sheet`
+* generate copyable resume-style bullets from achievement memories
+
+Done when:
+
+> User can Telegram “add to brag sheet: did X at Y which achieved Z” and later see it in a clean career achievement tracker.
 
 ---
 
