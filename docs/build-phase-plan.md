@@ -14,13 +14,19 @@ Build principle:
 
 > Every phase should end with something testable. Do not move to the next phase until the validation gate passes.
 
+Phase completion rule:
+
+> A phase is not complete until Codex has run the relevant automated checks, runtime/API checks, and core user-flow checks for that phase. The final response for a phase must clearly say whether the phase passed validation.
+
 When the user says something like “start Phase 1” or “do Phase 3”, Codex should:
 
 1. read this plan and the product context
 2. list the exact user actions needed for that phase
 3. implement the Codex-owned work for that phase
-4. run the validation checks listed for the phase
+4. run the validation checks listed for the phase, plus any extra regression checks needed to prove the touched functionality still works
 5. report what passed, what failed, and what user action is still needed
+6. if all validation passes, end the final response with `GOOD TO COMMIT: <commit message>`
+7. if validation does not pass, do not say `GOOD TO COMMIT`; instead end with `NOT READY TO COMMIT: <blocking reason>`
 
 ---
 
@@ -913,6 +919,42 @@ Thinkback V1: a usable personal AI memory inbox.
 
 # Cross-Phase Rules
 
+## Phase Validation And Closeout
+
+Every phase must include an explicit validation pass before it can be called complete.
+
+At minimum, Codex should run:
+
+* `npm run lint`
+* `npm run typecheck`
+* `npm run build`
+* `npm audit --omit=dev`
+
+Codex should also run phase-specific validation:
+
+* API route checks with `curl` or equivalent
+* database read/write checks when data persistence is touched
+* rendered route checks for frontend pages
+* create/read/update/delete checks when CRUD is touched
+* external service checks when a phase depends on Supabase, Telegram, OpenAI, storage, cron, or deployment
+* regression checks for any previously completed functionality that could have been affected
+
+If a validation item cannot be run, Codex must say exactly why and treat the phase as incomplete unless the missing check is irrelevant to that phase.
+
+Final phase response format:
+
+If all required validation passes, end with:
+
+```txt
+GOOD TO COMMIT: <imperative commit message>
+```
+
+If anything required fails or remains blocked, end with:
+
+```txt
+NOT READY TO COMMIT: <blocking reason>
+```
+
 ## Data Safety
 
 Never lose raw input.
@@ -979,4 +1021,3 @@ The final first version is complete when all of these are true:
 13. Failed processing is visible and retryable.
 14. Private files remain private.
 15. The app is usable from phone and browser in daily life.
-

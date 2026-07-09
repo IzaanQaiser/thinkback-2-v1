@@ -52,6 +52,17 @@ export function normalizeStringArray(value: unknown) {
   );
 }
 
+export function parseTagInput(value: string) {
+  return Array.from(
+    new Set(
+      value
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter(Boolean),
+    ),
+  );
+}
+
 export function createFallbackTitle(rawText: string) {
   const firstLine = rawText.split(/\r?\n/).find((line) => line.trim());
   const title = firstLine?.trim() || "Untitled memory";
