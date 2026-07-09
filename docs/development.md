@@ -222,6 +222,8 @@ Required user setup:
 
 Then add values to `.env.local`.
 
+Detailed setup steps: `docs/supabase-setup.md`.
+
 ## Phase 3
 
 Required user setup:
@@ -288,4 +290,3 @@ Inspect changed files:
 ```sh
 git status --short
 ```
-

@@ -34,3 +34,5 @@ npm run build
 ## Environment
 
 Copy `.env.example` to `.env.local` when a phase needs external services.
+
+Supabase setup for Phase 1: [docs/supabase-setup.md](docs/supabase-setup.md)
